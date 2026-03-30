@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>משפחה שלי — לוח שבועי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f2ee;
+  --surface: #ffffff;
+  --surface2: #faf8f5;
+  --border: #e8e2d9;
+  --text: #1a1714;
+  --text-soft: #7a7168;
+  --accent: #2d6a4f;
+  --accent-light: #e8f5ee;
+  --danger: #c0392b;
+  --warn: #e67e22;
+  --warn-light: #fef5ec;
+  --radius: 16px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+
+  --kid0: #3b82f6; --kid0-light: #eff6ff;
+  --kid1: #f59e0b; --kid1-light: #fffbeb;
+  --kid2: #ec4899; --kid2-light: #fdf2f8;
+  --kid3: #8b5cf6; --kid3-light: #f5f3ff;
+  --kid4: #14b8a6; --kid4-light: #f0fdfa;
+
+  --parent0: #64748b; --parent0-light: #f8fafc;
+  --parent1: #0ea5e9; --parent1-light: #f0f9ff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Rubik', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  direction: rtl;
+}
+
+/* ─── HEADER ─── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; gap: 16px;
+}
+.logo { font-size: 1.25rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+.logo span { color: var(--text-soft); font-weight: 400; }
+
+.view-tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 12px; }
+.view-tab {
+  padding: 6px 16px; border-radius: 8px; border: none; background: none;
+  font-family: 'Rubik', sans-serif; font-size: 0.85rem; font-weight: 500;
+  color: var(--text-soft); cursor: pointer; transition: all .15s;
+}
+.view-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+.header-actions { display: flex; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 10px; border: none;
+  font-family: 'Rubik', sans-serif; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #1e5438; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(45,106,79,.35); }
+.btn-ghost { background: none; color: var(--text-soft); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); color: var(--text); }
+.btn-sm { padding: 5px 10px; font-size: 0.78rem; border-radius: 7px; }
+.btn-danger { background: #fef2f2; color: var(--danger); border: 1.5px solid #fecaca; }
+.btn-danger:hover { background: #fde8e8; }
+
+/* ─── MAIN ─── */
+main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+/* ─── TODAY VIEW ─── */
+#view-today { display: none; }
+#view-today.active { display: block; }
+
+.today-header {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px;
+}
+.today-title { font-size: 1.8rem; font-weight: 800; }
+.today-sub { font-size: 1rem; color: var(--text-soft); }
+
+.today-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;
+}
+
+.kid-card {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1.5px solid var(--border); overflow: hidden;
+  box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s;
+}
+.kid-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+.kid-card-header {
+  padding: 16px 18px 12px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1.5px solid var(--border);
+}
+.kid-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.kid-name { font-size: 1.05rem; font-weight: 700; }
+.kid-role { font-size: 0.78rem; color: var(--text-soft); margin-top: 1px; }
+
+.kid-tasks { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.no-tasks {
+  padding: 20px; text-align: center; color: var(--text-soft); font-size: 0.9rem;
+}
+
+.task-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  transition: all .15s; cursor: pointer;
+}
+.task-item.done { opacity: .5; }
+.task-item.done .task-title { text-decoration: line-through; }
+
+.task-check {
+  width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border);
+  flex-shrink: 0; margin-top: 1px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.task-check.checked { background: var(--accent); border-color: var(--accent); }
+.task-check.checked::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 700; }
+
+.task-body { flex: 1; min-width: 0; }
+.task-title { font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+.task-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+.tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 500;
+}
+.tag-time { background: var(--accent-light); color: var(--accent); }
+.tag-gear { background: var(--warn-light); color: var(--warn); }
+.tag-note { background: #f0f0f0; color: #666; }
+.task-responsible { font-size: 0.75rem; color: var(--text-soft); margin-top: 4px; }
+.task-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .15s; }
+.task-item:hover .task-actions { opacity: 1; }
+.task-del { padding: 2px 6px; border-radius: 5px; border: none; background: none; color: #ccc; cursor: pointer; font-size: 0.75rem; }
+.task-del:hover { background: #fee; color: var(--danger); }
+
+/* ─── WEEK VIEW ─── */
+#view-week { display: none; }
+#view-week.active { display: block; }
+
+.week-nav {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.week-nav h2 { font-size: 1.4rem; font-weight: 800; flex: 1; }
+.week-grid {
+  display: grid;
+  grid-template-columns: 120px repeat(7, 1fr);
+  gap: 1px; background: var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.wg-cell {
+  background: var(--surface); padding: 10px 8px; min-height: 60px;
+}
+.wg-header-corner { background: var(--surface2); }
+.wg-day-header {
+  background: var(--surface2);
+  text-align: center; font-size: 0.78rem; font-weight: 600;
+  color: var(--text-soft); padding: 10px 6px;
+}
+.wg-day-header.today-col { background: var(--accent-light); color: var(--accent); }
+.wg-kid-label {
+  background: var(--surface2);
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+}
+.wg-kid-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.wg-kid-name { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.wg-tasks-cell { vertical-align: top; padding: 6px; }
+.wg-task-pill {
+  display: block; width: 100%; text-align: right;
+  padding: 3px 7px; border-radius: 6px; font-size: 0.72rem; font-weight: 500;
+  margin-bottom: 4px; border: none; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: opacity .15s;
+}
+.wg-task-pill.done { opacity: .4; text-decoration: line-through; }
+.wg-add-mini {
+  display: block; width: 100%; text-align: center;
+  padding: 2px; border-radius: 5px; border: 1.5px dashed var(--border);
+  background: none; color: var(--text-soft); cursor: pointer; font-size: 0.7rem;
+  margin-top: 2px; transition: all .15s;
+}
+.wg-add-mini:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* ─── SETTINGS VIEW ─── */
+#view-settings { display: none; }
+#view-settings.active { display: block; }
+
+.settings-sections { display: flex; flex-direction: column; gap: 24px; }
+.settings-card {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1.5px solid var(--border); padding: 20px 24px;
+  box-shadow: var(--shadow);
+}
+.settings-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+.people-list { display: flex; flex-direction: column; gap: 10px; }
+.person-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.person-color { width: 28px; height: 28px; border-radius: 8px; border: 2px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+.person-name-input {
+  flex: 1; border: none; background: none;
+  font-family: 'Rubik', sans-serif; font-size: 0.9rem; font-weight: 600;
+  color: var(--text); outline: none; direction: rtl;
+}
+.person-role { font-size: 0.75rem; color: var(--text-soft); }
+
+.add-person-row { display: flex; gap: 8px; margin-top: 8px; }
+.input-base {
+  flex: 1; padding: 9px 14px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  font-family: 'Rubik', sans-serif; font-size: 0.9rem;
+  color: var(--text); outline: none; direction: rtl;
+  transition: border-color .15s;
+}
+.input-base:focus { border-color: var(--accent); }
+select.input-base { cursor: pointer; }
+
+/* ─── MODAL ─── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+  z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: 20px;
+  width: 100%; max-width: 480px; padding: 28px;
+  box-shadow: var(--shadow-lg); direction: rtl;
+  animation: slideUp .25s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modal-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.form-label { font-size: 0.82rem; font-weight: 600; color: var(--text-soft); }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+textarea.input-base { resize: vertical; min-height: 72px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-start; margin-top: 20px; }
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-soft);
+}
+.empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
+.empty-state h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--text); color: #fff; padding: 10px 20px;
+  border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+  z-index: 9999; transition: transform .3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 700px) {
+  .week-grid { grid-template-columns: 80px repeat(7, 1fr); font-size: 0.7rem; }
+  .header-inner { flex-wrap: wrap; height: auto; padding: 10px 0; gap: 8px; }
+  main { padding: 16px; }
+  .modal { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">🏡 משפחה <span>שלי</span></div>
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="today">היום</button>
+      <button class="view-tab" data-view="week">השבוע</button>
+      <button class="view-tab" data-view="settings">הגדרות</button>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" id="btn-add-task">+ הוסף אירוע</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- TODAY -->
+  <div id="view-today" class="active">
+    <div class="today-header">
+      <div class="today-title" id="today-title">טוען...</div>
+      <div class="today-sub" id="today-sub"></div>
+    </div>
+    <div class="today-grid" id="today-grid"></div>
+  </div>
+
+  <!-- WEEK -->
+  <div id="view-week">
+    <div class="week-nav">
+      <h2 id="week-label">השבוע</h2>
+      <button class="btn btn-ghost btn-sm" id="btn-prev-week">◀ שבוע קודם</button>
+      <button class="btn btn-ghost btn-sm" id="btn-today-week">היום</button>
+      <button class="btn btn-ghost btn-sm" id="btn-next-week">שבוע הבא ▶</button>
+    </div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="view-settings">
+    <div class="settings-sections">
+      <div class="settings-card">
+        <h3>👨‍👩‍👧‍👦 חברי המשפחה</h3>
+        <div class="people-list" id="people-list"></div>
+        <div class="add-person-row" style="margin-top:14px;">
+          <input class="input-base" id="new-person-name" placeholder="שם הילד / ההורה..." />
+          <select class="input-base" id="new-person-role" style="max-width:130px;">
+            <option value="child">ילד/ה</option>
+            <option value="parent">הורה</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="addPerson()">הוסף</button>
+        </div>
+      </div>
+      <div class="settings-card">
+        <h3>♻️ אירועים קבועים (חוזרים)</h3>
+        <div id="recurring-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+        <button class="btn btn-ghost btn-sm" onclick="openRecurringModal()">+ הוסף אירוע קבוע</button>
+      </div>
+      <div class="settings-card">
+        <h3>📌 אירועים נקודתיים</h3>
+        <p style="font-size:.82rem;color:var(--text-soft);margin-bottom:14px;">אירועים חד-פעמיים — הצגה, טיול, ביקור רופא...</p>
+        <div id="onetime-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+        <button class="btn btn-ghost btn-sm" onclick="openAddTask()">+ הוסף אירוע נקודתי</button>
+      </div>
+      <div class="settings-card" style="border-color:#fecaca;">
+        <h3 style="color:var(--danger)">⚠️ איפוס</h3>
+        <p style="font-size:.85rem;color:var(--text-soft);margin-bottom:12px;">מוחק את כל הנתונים — לא ניתן לשחזר.</p>
+        <button class="btn btn-danger btn-sm" onclick="resetAll()">מחק הכל</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-backdrop" id="modal-task">
+  <div class="modal">
+    <div class="modal-title" id="modal-task-title">+ הוסף אירוע</div>
+    <div class="form-group">
+      <label class="form-label">שם האירוע / המשימה *</label>
+      <input class="input-base" id="task-title-input" placeholder='למשל: חוג קראטה, הצגה בגן, תרופה...' />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">ילד / הורה</label>
+        <select class="input-base" id="task-person-input"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">יום בשבוע</label>
+        <select class="input-base" id="task-day-input">
+          <option value="0">ראשון</option>
+          <option value="1">שני</option>
+          <option value="2">שלישי</option>
+          <option value="3">רביעי</option>
+          <option value="4">חמישי</option>
+          <option value="5">שישי</option>
+          <option value="6">שבת</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">שעה (אופציונלי)</label>
+        <input class="input-base" id="task-time-input" type="time" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">אחראי</label>
+        <select class="input-base" id="task-responsible-input">
+          <option value="">— לא הוגדר —</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ציוד נדרש</label>
+      <input class="input-base" id="task-gear-input" placeholder='למשל: תיק שחייה, בקבוק מים, כסף...' />
+    </div>
+    <div class="form-group">
+      <label class="form-label">הערה / הודעה מהגן</label>
+      <textarea class="input-base" id="task-note-input" placeholder="הדבק כאן הודעה מהגן או הוסף פרטים..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">
+        <input type="checkbox" id="task-recurring-check" style="margin-left:6px;accent-color:var(--accent);">
+        אירוע חוזר שבועי
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="modal-task-save">שמור</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-task')">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECURRING MODAL -->
+<div class="modal-backdrop" id="modal-recurring">
+  <div class="modal">
+    <div class="modal-title">♻️ אירוע קבוע (שבועי)</div>
+    <div class="form-group">
+      <label class="form-label">שם</label>
+      <input class="input-base" id="rec-title-input" placeholder="חוג, גן, שיעור..." />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">ילד / הורה</label>
+        <select class="input-base" id="rec-person-input"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">יום</label>
+        <select class="input-base" id="rec-day-input">
+          <option value="0">ראשון</option><option value="1">שני</option>
+          <option value="2">שלישי</option><option value="3">רביעי</option>
+          <option value="4">חמישי</option><option value="5">שישי</option>
+          <option value="6">שבת</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">שעה</label>
+        <input class="input-base" id="rec-time-input" type="time" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">ציוד</label>
+        <input class="input-base" id="rec-gear-input" placeholder="תיק, נעליים..." />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveRecurring()">שמור</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-recurring')">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD KID MODAL -->
+<div class="modal-backdrop" id="modal-add-kid">
+  <div class="modal">
+    <div class="modal-title">👶 הוסף ילד/ה</div>
+    <div class="form-group">
+      <label class="form-label">שם הילד/ה *</label>
+      <input class="input-base" id="quick-kid-name" placeholder="למשל: נועה, יונתן..." />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="quickAddKid()">הוסף</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-kid')">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const DAYS_HE = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const KID_COLORS  = ['#3b82f6','#f59e0b','#ec4899','#8b5cf6','#14b8a6'];
+const KID_LIGHTS  = ['#eff6ff','#fffbeb','#fdf2f8','#f5f3ff','#f0fdfa'];
+const PAR_COLORS  = ['#64748b','#0ea5e9','#f97316','#10b981'];
+const PAR_LIGHTS  = ['#f8fafc','#f0f9ff','#fff7ed','#ecfdf5'];
+
+let state = { people: [], tasks: [], recurring: [] };
+
+function load() {
+  try { state = JSON.parse(localStorage.getItem('mishpacha_v3') || '{}'); } catch(e) {}
+  state.people    = state.people    || [];
+  state.tasks     = state.tasks     || [];
+  state.recurring = state.recurring || [];
+  if (!state.people.length) {
+    state.people = [
+      { id: uid(), name: 'אמא', role: 'parent', colorIdx: 0 },
+      { id: uid(), name: 'אבא', role: 'parent', colorIdx: 1 },
+      { id: uid(), name: 'נועה', role: 'child', colorIdx: 0 },
+      { id: uid(), name: 'יונתן', role: 'child', colorIdx: 1 },
+    ];
+    state.recurring = [
+      { id: uid(), title: 'גן', personId: state.people[2].id, day: 0, time:'07:30', gear:'כובע' },
+      { id: uid(), title: 'גן', personId: state.people[2].id, day: 1, time:'07:30', gear:'כובע' },
+      { id: uid(), title: 'גן', personId: state.people[2].id, day: 2, time:'07:30', gear:'כובע' },
+      { id: uid(), title: 'גן', personId: state.people[2].id, day: 3, time:'07:30', gear:'כובע' },
+      { id: uid(), title: 'גן', personId: state.people[2].id, day: 4, time:'07:30', gear:'כובע' },
+      { id: uid(), title: 'בית ספר', personId: state.people[3].id, day: 0, time:'07:45', gear:'' },
+      { id: uid(), title: 'בית ספר', personId: state.people[3].id, day: 1, time:'07:45', gear:'' },
+      { id: uid(), title: 'בית ספר', personId: state.people[3].id, day: 2, time:'07:45', gear:'' },
+      { id: uid(), title: 'קראטה', personId: state.people[3].id, day: 2, time:'16:00', gear:'תיק קראטה' },
+    ];
+    state.tasks = [
+      { id: uid(), title: 'הצגה סוף השנה', personId: state.people[2].id, day: 4, time:'10:00',
+        gear:'שמלה לבנה', note:'מגן רימון — הורים מוזמנים', responsibleId: state.people[0].id, done: false, recurring: false },
+    ];
+    save();
+  }
+}
+function save() { localStorage.setItem('mishpacha_v3', JSON.stringify(state)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function personColor(p) {
+  if (!p) return '#aaa';
+  return p.role === 'child' ? KID_COLORS[p.colorIdx % KID_COLORS.length] : PAR_COLORS[p.colorIdx % PAR_COLORS.length];
+}
+function personLight(p) {
+  if (!p) return '#f5f5f5';
+  return p.role === 'child' ? KID_LIGHTS[p.colorIdx % KID_LIGHTS.length] : PAR_LIGHTS[p.colorIdx % PAR_LIGHTS.length];
+}
+function getPerson(id) { return state.people.find(p => p.id === id); }
+
+// ─── DATE HELPERS ────────────────────────────────────────
+// In Israel Sunday = 0 through Saturday = 6
+function todayDayIndex() {
+  const d = new Date().getDay(); // 0=Sun,...,6=Sat
+  return d;
+}
+function todayDate() { return new Date(); }
+function formatDate(d) {
+  return d.toLocaleDateString('he-IL', { day:'numeric', month:'long', year:'numeric' });
+}
+function weekStart(offset = 0) {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - d.getDay() + offset * 7);
+  return d;
+}
+
+// ─── VIEWS ───────────────────────────────────────────────
+let currentView = 'today';
+let weekOffset = 0;
+
+document.querySelectorAll('.view-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentView = btn.dataset.view;
+    document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + currentView).classList.add('active');
+    renderAll();
+  });
+});
+
+function renderAll() {
+  renderToday();
+  renderWeek();
+  renderSettings();
+}
+
+// ─── TODAY ───────────────────────────────────────────────
+function renderToday() {
+  const d = todayDate();
+  const dayIdx = todayDayIndex();
+  document.getElementById('today-title').textContent = `יום ${DAYS_HE[dayIdx]}, ${formatDate(d)}`;
+
+  const grid = document.getElementById('today-grid');
+  const people = state.people;
+  if (!people.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="emoji">👨‍👩‍👧</div><h3>עוד אין חברי משפחה</h3><p>עבור להגדרות והוסף חברי משפחה כדי להתחיל.</p></div>`;
+    return;
+  }
+
+  const allTasks = getTasksForDay(dayIdx);
+
+  grid.innerHTML = '';
+  people.forEach(person => {
+    const tasks = allTasks.filter(t => t.personId === person.id);
+    const color = personColor(person);
+    const light = personLight(person);
+    const card = document.createElement('div');
+    card.className = 'kid-card';
+    const initials = person.name.charAt(0);
+    let tasksHTML = '';
+    if (!tasks.length) {
+      tasksHTML = `<div class="no-tasks">אין אירועים להיום 🎉</div>`;
+    } else {
+      tasks.forEach(t => {
+        const responsible = t.responsibleId ? getPerson(t.responsibleId) : null;
+        tasksHTML += `<div class="task-item ${t.done?'done':''}" data-id="${t.id}">
+          <div class="task-check ${t.done?'checked':''}" onclick="toggleTask('${t.id}')"></div>
+          <div class="task-body">
+            <div class="task-title">${t.title}</div>
+            <div class="task-meta">
+              ${t.time ? `<span class="tag tag-time">🕐 ${t.time}</span>` : ''}
+              ${t.gear ? `<span class="tag tag-gear">🎒 ${t.gear}</span>` : ''}
+              ${t.note ? `<span class="tag tag-note">💬 ${t.note.slice(0,30)}${t.note.length>30?'…':''}</span>` : ''}
+            </div>
+            ${responsible ? `<div class="task-responsible">👤 אחראי: ${responsible.name}</div>` : ''}
+          </div>
+          <div class="task-actions">
+            ${!t._recurring ? `<button class="task-del" onclick="deleteTask('${t.id}')">✕</button>` : ''}
+          </div>
+        </div>`;
+      });
+    }
+    card.innerHTML = `
+      <div class="kid-card-header" style="background:${light}">
+        <div class="kid-avatar" style="background:${color}">${initials}</div>
+        <div>
+          <div class="kid-name">${person.name}</div>
+          <div class="kid-role">${person.role === 'child' ? 'ילד/ה' : 'הורה'} · ${tasks.length} אירועים</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-right:auto;" onclick="openAddTaskFor('${person.id}')">+</button>
+      </div>
+      <div class="kid-tasks">${tasksHTML}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function getTasksForDay(dayIdx) {
+  // recurring blueprints → generate virtual tasks
+  const rec = state.recurring
+    .filter(r => r.day === dayIdx)
+    .map(r => ({ ...r, _recurring: true, done: false, responsibleId: r.responsibleId || null }));
+  const one = state.tasks.filter(t => t.day === dayIdx);
+  // merge: one-time overrides recurring by same title+person
+  const result = [...rec];
+  one.forEach(t => {
+    const dup = result.findIndex(r => r._recurring && r.personId === t.personId && r.title === t.title);
+    if (dup !== -1) result.splice(dup, 1, t);
+    else result.push(t);
+  });
+  return result.sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+}
+
+function toggleTask(id) {
+  let t = state.tasks.find(t => t.id === id);
+  if (!t) { /* probably recurring — snapshot it */ }
+  if (t) {
+    t.done = !t.done;
+    save();
+    renderAll();
+    toast(t.done ? '✅ סומן כהושלם' : '↩️ בוטל הסימון');
+  }
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  save(); renderAll(); toast('🗑️ נמחק');
+}
+
+// ─── WEEK ────────────────────────────────────────────────
+function renderWeek() {
+  const ws = weekStart(weekOffset);
+  const we = new Date(ws); we.setDate(we.getDate() + 6);
+  document.getElementById('week-label').textContent =
+    `${ws.toLocaleDateString('he-IL',{day:'numeric',month:'short'})} — ${we.toLocaleDateString('he-IL',{day:'numeric',month:'short',year:'numeric'})}`;
+
+  const todayIdx = todayDayIndex();
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+
+  // corner
+  const corner = document.createElement('div');
+  corner.className = 'wg-cell wg-header-corner';
+  grid.appendChild(corner);
+
+  // day headers
+  for (let d = 0; d < 7; d++) {
+    const cell = document.createElement('div');
+    cell.className = `wg-cell wg-day-header${(d === todayIdx && weekOffset === 0) ? ' today-col' : ''}`;
+    const dayDate = new Date(ws); dayDate.setDate(dayDate.getDate() + d);
+    cell.innerHTML = `<strong>${DAYS_HE[d]}</strong><br><span style="font-size:.7rem">${dayDate.getDate()}/${dayDate.getMonth()+1}</span>`;
+    grid.appendChild(cell);
+  }
+
+  // rows per person
+  state.people.forEach(person => {
+    const color = personColor(person);
+    // label
+    const label = document.createElement('div');
+    label.className = 'wg-cell wg-kid-label';
+    label.innerHTML = `<div class="wg-kid-dot" style="background:${color}"></div><div class="wg-kid-name">${person.name}</div>`;
+    grid.appendChild(label);
+
+    for (let d = 0; d < 7; d++) {
+      const cell = document.createElement('div');
+      cell.className = 'wg-cell wg-tasks-cell';
+      const tasks = getTasksForDay(d).filter(t => t.personId === person.id);
+      tasks.forEach(t => {
+        const pill = document.createElement('button');
+        pill.className = `wg-task-pill${t.done?' done':''}`;
+        pill.style.background = color + '25';
+        pill.style.color = color;
+        pill.title = t.title + (t.time ? ' ' + t.time : '') + (t.gear ? ' | ' + t.gear : '');
+        pill.textContent = (t.time ? t.time + ' ' : '') + t.title;
+        pill.onclick = () => t._recurring ? null : toggleTask(t.id);
+        cell.appendChild(pill);
+      });
+      const addBtn = document.createElement('button');
+      addBtn.className = 'wg-add-mini';
+      addBtn.textContent = '+';
+      addBtn.onclick = () => openAddTaskForDay(person.id, d);
+      cell.appendChild(addBtn);
+      grid.appendChild(cell);
+    }
+  });
+}
+
+document.getElementById('btn-prev-week').onclick = () => { weekOffset--; renderWeek(); };
+document.getElementById('btn-next-week').onclick = () => { weekOffset++; renderWeek(); };
+document.getElementById('btn-today-week').onclick = () => { weekOffset = 0; renderWeek(); };
+
+// ─── SETTINGS ────────────────────────────────────────────
+function renderSettings() {
+  const list = document.getElementById('people-list');
+  const kids = state.people.filter(p => p.role === 'child');
+  const parents = state.people.filter(p => p.role === 'parent');
+  const allOrdered = [...parents, ...kids];
+
+  list.innerHTML = allOrdered.map(p => {
+    const color = personColor(p);
+    return `<div class="person-row">
+      <div class="person-color" style="background:${color}"></div>
+      <input class="person-name-input" value="${p.name}" onchange="renamePerson('${p.id}', this.value)" />
+      <span class="person-role">${p.role === 'child' ? 'ילד/ה' : 'הורה'}</span>
+      <button class="btn btn-danger btn-sm" onclick="removePerson('${p.id}')">הסר</button>
+    </div>`;
+  }).join('');
+
+  // recurring
+  const recList = document.getElementById('recurring-list');
+  if (!state.recurring.length) {
+    recList.innerHTML = `<div style="color:var(--text-soft);font-size:.85rem;">אין עדיין אירועים קבועים.</div>`;
+  } else {
+    recList.innerHTML = state.recurring.map(r => {
+      const p = getPerson(r.personId);
+      const color = p ? personColor(p) : '#aaa';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div style="flex:1;font-size:.85rem;font-weight:600;">${r.title}</div>
+        <div style="font-size:.78rem;color:var(--text-soft);">${p?.name||''} · יום ${DAYS_HE[r.day]}${r.time?' · '+r.time:''}</div>
+        ${r.gear ? `<span class="tag tag-gear" style="font-size:.7rem">🎒 ${r.gear}</span>` : ''}
+        <button class="task-del" style="opacity:1;" onclick="removeRecurring('${r.id}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  // one-time events
+  const otList = document.getElementById('onetime-list');
+  const oneTimes = state.tasks.filter(t => !t.recurring);
+  if (!oneTimes.length) {
+    otList.innerHTML = `<div style="color:var(--text-soft);font-size:.85rem;">אין עדיין אירועים נקודתיים.</div>`;
+  } else {
+    otList.innerHTML = oneTimes.map(t => {
+      const p = getPerson(t.personId);
+      const color = p ? personColor(p) : '#aaa';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div style="flex:1;font-size:.85rem;font-weight:600;">${t.title}</div>
+        <div style="font-size:.78rem;color:var(--text-soft);">${p?.name||''} · יום ${DAYS_HE[t.day]}${t.time?' · '+t.time:''}</div>
+        ${t.gear ? `<span class="tag tag-gear" style="font-size:.7rem">🎒 ${t.gear}</span>` : ''}
+        ${t.note ? `<span class="tag tag-note" style="font-size:.7rem">💬 ${t.note.slice(0,20)}…</span>` : ''}
+        <button class="task-del" style="opacity:1;" onclick="deleteTask('${t.id}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function addPerson() {
+  const name = document.getElementById('new-person-name').value.trim();
+  const role = document.getElementById('new-person-role').value;
+  if (!name) { toast('⚠️ הכנס שם'); return; }
+  const existingOfRole = state.people.filter(p => p.role === role);
+  state.people.push({ id: uid(), name, role, colorIdx: existingOfRole.length });
+  document.getElementById('new-person-name').value = '';
+  save(); renderAll(); toast('✅ נוסף: ' + name);
+}
+
+function renamePerson(id, val) {
+  const p = state.people.find(p => p.id === id);
+  if (p) { p.name = val.trim() || p.name; save(); renderAll(); }
+}
+
+function removePerson(id) {
+  if (!confirm('להסיר את חבר המשפחה?')) return;
+  state.people = state.people.filter(p => p.id !== id);
+  state.tasks = state.tasks.filter(t => t.personId !== id);
+  state.recurring = state.recurring.filter(r => r.personId !== id);
+  save(); renderAll(); toast('🗑️ הוסר');
+}
+
+function openRecurringModal() {
+  populatePersonSelect('rec-person-input');
+  document.getElementById('rec-title-input').value = '';
+  document.getElementById('rec-time-input').value = '';
+  document.getElementById('rec-gear-input').value = '';
+  openModal('modal-recurring');
+}
+
+function saveRecurring() {
+  const title = document.getElementById('rec-title-input').value.trim();
+  const personId = document.getElementById('rec-person-input').value;
+  const day = parseInt(document.getElementById('rec-day-input').value);
+  const time = document.getElementById('rec-time-input').value;
+  const gear = document.getElementById('rec-gear-input').value.trim();
+  if (!title || !personId) { toast('⚠️ שם ואדם הכרחיים'); return; }
+  state.recurring.push({ id: uid(), title, personId, day, time, gear });
+  save(); closeModal('modal-recurring'); renderAll(); toast('♻️ אירוע קבוע נוסף');
+}
+
+function removeRecurring(id) {
+  state.recurring = state.recurring.filter(r => r.id !== id);
+  save(); renderAll(); toast('🗑️ נמחק');
+}
+
+// ─── ADD TASK MODAL ───────────────────────────────────────
+let editTaskId = null;
+
+function populatePersonSelect(selectId) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = state.people.map(p => `<option value="${p.id}">${p.name} (${p.role==='child'?'ילד/ה':'הורה'})</option>`).join('');
+}
+
+function openAddTask(dayIdx = todayDayIndex(), personId = null) {
+  editTaskId = null;
+  document.getElementById('modal-task-title').textContent = '+ הוסף אירוע';
+  populatePersonSelect('task-person-input');
+  populatePersonSelect('task-responsible-input');
+  document.getElementById('task-responsible-input').insertAdjacentHTML('afterbegin', '<option value="">— לא הוגדר —</option>');
+  document.getElementById('task-title-input').value = '';
+  document.getElementById('task-day-input').value = dayIdx;
+  document.getElementById('task-time-input').value = '';
+  document.getElementById('task-gear-input').value = '';
+  document.getElementById('task-note-input').value = '';
+  document.getElementById('task-recurring-check').checked = false;
+  if (personId) document.getElementById('task-person-input').value = personId;
+  openModal('modal-task');
+}
+
+function openAddTaskFor(personId) { openAddTask(todayDayIndex(), personId); }
+function openAddTaskForDay(personId, day) { openAddTask(day, personId); }
+
+document.getElementById('btn-add-task').onclick = () => openAddTask();
+
+document.getElementById('modal-task-save').onclick = () => {
+  const title = document.getElementById('task-title-input').value.trim();
+  const personId = document.getElementById('task-person-input').value;
+  const day = parseInt(document.getElementById('task-day-input').value);
+  const time = document.getElementById('task-time-input').value;
+  const gear = document.getElementById('task-gear-input').value.trim();
+  const note = document.getElementById('task-note-input').value.trim();
+  const responsibleId = document.getElementById('task-responsible-input').value || null;
+  const recurring = document.getElementById('task-recurring-check').checked;
+
+  if (!title) { toast('⚠️ שם האירוע חסר'); return; }
+  if (!personId) { toast('⚠️ בחר ילד / הורה'); return; }
+
+  if (recurring) {
+    state.recurring.push({ id: uid(), title, personId, day, time, gear });
+  } else {
+    if (editTaskId) {
+      const t = state.tasks.find(t => t.id === editTaskId);
+      if (t) Object.assign(t, { title, personId, day, time, gear, note, responsibleId });
+    } else {
+      state.tasks.push({ id: uid(), title, personId, day, time, gear, note, responsibleId, done: false, recurring: false });
+    }
+  }
+  save(); closeModal('modal-task'); renderAll(); toast('✅ נשמר!');
+};
+
+// ─── MODAL HELPERS ───────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-backdrop').forEach(b => {
+  b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); });
+});
+
+// ─── TOAST ───────────────────────────────────────────────
+function toast(msg, dur = 2000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ─── RESET ───────────────────────────────────────────────
+function resetAll() {
+  if (!confirm('למחוק את כל הנתונים? פעולה זו לא ניתנת לביטול.')) return;
+  localStorage.removeItem('mishpacha_v3');
+  location.reload();
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+load();
+renderAll();
+</script>
+</body>
+</html>
